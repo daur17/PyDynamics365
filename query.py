@@ -24,4 +24,7 @@ class GetData:
 cust_account = 'CLI_000160'
 odata_query = f"Customers?$filter=CustomerAccount eq '{cust_account}'&$select=CustomerAccount,Name,DeliveryAddressStreet,SalesMemo"
 x = GetData(odata_query)
-print(x.get_data()['value'])
+
+for customer in x.get_data()['value']:
+    for key, value in customer.items():
+        print(f'{key}\n      {value}')
