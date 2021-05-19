@@ -1,4 +1,4 @@
-from authentication import get_access_token
+from authentication import Authentication
 from dotenv import load_dotenv
 import requests
 import os
@@ -6,18 +6,22 @@ import os
 # load env variables
 load_dotenv('.env')
 
-# get access token
-type, token = get_access_token()
-bearer = f'{type} {token}'
+class GetData:
 
-# customer url
+    def __init__(self, query):
+        self.query = query
+
+    def get_data(self):
+        # get access token
+        auth = Authentication()
+        type, token = auth.get_access_token()
+        bearer = f'{type} {token}'
+
+        data = requests.get(f'{auth.resource}/data/{self.query}', headers = {'Authorization': bearer})
+
+        return data.json()
+
 cust_account = 'CLI_000160'
-customers_url = f"{os.getenv('RESOURCE')}/data/Customers"
-customer_url = f"{os.getenv('RESOURCE')}/data/Customers?$filter=CustomerAccount eq '{cust_account}'&$select=CustomerAccount,Name,DeliveryAddressStreet"
-
-# single customer
-customer_data = requests.get(customer_url, headers = {'Authorization': bearer})
-
-for customer in customer_data.json()['value']:
-    for key, value in customer.items():
-        print(f'{key}\n      {value}')
+odata_query = f"Customers?$filter=CustomerAccount eq '{cust_account}'&$select=CustomerAccount,Name,DeliveryAddressStreet,SalesMemo"
+x = GetData(odata_query)
+print(x.get_data()['value'])
